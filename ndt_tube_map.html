@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NDT Certification Map · ASNT</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:        #0f1117;
+    --surface:   #171b24;
+    --surface2:  #1e2330;
+    --border:    rgba(255,255,255,0.08);
+    --border2:   rgba(255,255,255,0.14);
+    --text:      #e8e4da;
+    --muted:     #7a7d8a;
+    --faint:     #3a3e4c;
+
+    --blue:      #4a8fe8;
+    --blue-bg:   rgba(74,143,232,0.12);
+    --coral:     #e05a38;
+    --coral-bg:  rgba(224,90,56,0.12);
+    --gray:      #8c8f99;
+    --gray-bg:   rgba(140,143,153,0.12);
+    --green:     #3db87a;
+    --green-bg:  rgba(61,184,122,0.12);
+
+    --purple:    #9b8fe8;
+    --teal:      #2fc6a0;
+    --amber:     #e8a030;
+
+    --track-w:   6px;
+    --dot-r:     9px;
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 0;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── Header ── */
+  header {
+    padding: 36px 48px 28px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: baseline;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+  header h1 {
+    font-family: 'Instrument Serif', Georgia, serif;
+    font-size: 28px;
+    font-weight: 400;
+    color: var(--text);
+    letter-spacing: -0.02em;
+  }
+  header p {
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .edition-badge {
+    margin-left: auto;
+    font-size: 11px;
+    color: var(--muted);
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    padding: 4px 10px;
+    border-radius: 20px;
+    letter-spacing: 0.04em;
+  }
+
+  /* ── Main grid ── */
+  main {
+    padding: 40px 48px;
+    max-width: 1100px;
+  }
+
+  /* ── Map container ── */
+  .map-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .map {
+    position: relative;
+    min-width: 780px;
+    width: 100%;
+  }
+
+  /* ── Column headers ── */
+  .col-headers {
+    display: grid;
+    grid-template-columns: 80px 1fr 1fr 1fr 1fr;
+    gap: 0;
+    margin-bottom: 0;
+    padding-left: 0;
+  }
+  .col-spacer { /* empty first cell */ }
+  .col-header {
+    text-align: center;
+    padding: 10px 8px;
+    border-radius: 8px 8px 0 0;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+  }
+  .col-header small {
+    display: block;
+    font-size: 10px;
+    font-weight: 400;
+    margin-top: 3px;
+    opacity: 0.7;
+  }
+  .col-header.blue   { background: var(--blue-bg);  color: var(--blue);  border-top: 2px solid var(--blue); }
+  .col-header.coral  { background: var(--coral-bg); color: var(--coral); border-top: 2px solid var(--coral); }
+  .col-header.gray   { background: var(--gray-bg);  color: var(--gray);  border-top: 2px solid var(--gray); }
+  .col-header.green  { background: var(--green-bg); color: var(--green); border-top: 2px solid var(--green); }
+
+  /* ── Level rows ── */
+  .level-row {
+    display: grid;
+    grid-template-columns: 80px 1fr 1fr 1fr 1fr;
+    gap: 0;
+    border-top: 1px solid var(--border);
+    position: relative;
+  }
+  .level-row:last-child { border-bottom: 1px solid var(--border); }
+
+  /* The coloured horizontal "track" bar */
+  .level-row::before {
+    content: '';
+    position: absolute;
+    left: 80px; right: 0;
+    top: 50%; transform: translateY(-50%);
+    height: var(--track-w);
+    border-radius: 3px;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .level-row.lvl1::before { background: var(--purple); }
+  .level-row.lvl2::before { background: var(--teal); }
+  .level-row.lvl3::before { background: var(--amber); }
+
+  /* Level label cell */
+  .level-label {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 28px 16px 28px 0;
+    gap: 4px;
+  }
+  .level-label .badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    font-size: 13px;
+    font-weight: 700;
+    flex-shrink: 0;
+    margin-bottom: 6px;
+  }
+  .lvl1 .badge { background: var(--purple); color: #1a1526; }
+  .lvl2 .badge { background: var(--teal);   color: #0d2a22; }
+  .lvl3 .badge { background: var(--amber);  color: #2a1e08; }
+  .level-label h3 {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    white-space: nowrap;
+  }
+  .level-label p {
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.4;
+    max-width: 68px;
+  }
+
+  /* Station cells */
+  .station-cell {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px 12px;
+    z-index: 1;
+    cursor: pointer;
+    transition: background 0.2s;
+    border-left: 1px solid var(--border);
+  }
+  .station-cell:hover { background: rgba(255,255,255,0.03); }
+
+  /* Vertical track through cell */
+  .station-cell::before {
+    content: '';
+    position: absolute;
+    top: 0; bottom: 0;
+    left: 50%; transform: translateX(-50%);
+    width: var(--track-w);
+    z-index: 0;
+    border-radius: 0;
+  }
+  .station-cell.blue::before  { background: var(--blue); }
+  .station-cell.coral::before { background: var(--coral); }
+  .station-cell.gray::before  { background: var(--gray); }
+  .station-cell.green::before { background: var(--green); }
+
+  /* The station dot */
+  .dot {
+    position: relative;
+    z-index: 2;
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    background: var(--bg);
+    border-width: 3px;
+    border-style: solid;
+    flex-shrink: 0;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .station-cell:hover .dot {
+    transform: scale(1.25);
+    box-shadow: 0 0 0 4px rgba(255,255,255,0.06);
+  }
+  .station-cell.blue  .dot { border-color: var(--blue); }
+  .station-cell.coral .dot { border-color: var(--coral); }
+  .station-cell.gray  .dot { border-color: var(--gray); }
+  .station-cell.green .dot { border-color: var(--green); }
+
+  /* Big interchange dot for Level III */
+  .lvl3 .dot {
+    width: 28px; height: 28px;
+    border-width: 4px;
+  }
+
+  /* Tooltip on hover */
+  .station-cell .tip {
+    display: none;
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%; transform: translateX(-50%);
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 12px;
+    color: var(--text);
+    line-height: 1.5;
+    width: 200px;
+    z-index: 10;
+    pointer-events: none;
+    white-space: normal;
+    text-align: left;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+  }
+  .station-cell .tip strong {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 4px;
+    color: var(--text);
+  }
+  .station-cell:hover .tip { display: block; }
+
+  /* ── Methods strip ── */
+  .methods-section {
+    margin-top: 32px;
+  }
+  .methods-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+  .methods-track-wrap {
+    position: relative;
+    padding: 16px 0 8px;
+  }
+  /* Horizontal teal line behind methods */
+  .methods-track-wrap::before {
+    content: '';
+    position: absolute;
+    left: 0; right: 0;
+    top: 28px;
+    height: 5px;
+    background: var(--teal);
+    border-radius: 3px;
+  }
+  .methods-grid {
+    display: flex;
+    gap: 0;
+    position: relative;
+    z-index: 1;
+  }
+  .method-stop {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    cursor: pointer;
+  }
+  .method-stop .m-dot {
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    background: var(--bg);
+    border: 2.5px solid var(--teal);
+    margin-bottom: 10px;
+    transition: transform 0.2s;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 2;
+  }
+  .method-stop.advanced .m-dot {
+    border-style: dashed;
+    border-color: var(--teal);
+    opacity: 0.7;
+  }
+  .method-stop:hover .m-dot { transform: scale(1.3); }
+  .method-stop .m-abbr {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--teal);
+    letter-spacing: 0.02em;
+  }
+  .method-stop.advanced .m-abbr { opacity: 0.7; }
+  .method-stop .m-name {
+    font-size: 10px;
+    color: var(--muted);
+    text-align: center;
+    margin-top: 2px;
+    line-height: 1.3;
+  }
+  .method-stop .m-hours {
+    font-size: 10px;
+    color: var(--faint);
+    margin-top: 3px;
+  }
+
+  /* ── Key / legend ── */
+  .legend {
+    margin-top: 36px;
+    display: flex;
+    gap: 32px;
+    flex-wrap: wrap;
+    padding: 20px 24px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+  }
+  .legend-group h4 {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+    font-size: 12px;
+    color: var(--text);
+  }
+  .leg-line {
+    width: 28px; height: 5px;
+    border-radius: 3px;
+    flex-shrink: 0;
+  }
+  .leg-dot {
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: var(--bg);
+    border: 2.5px solid;
+    flex-shrink: 0;
+  }
+  .renew-note {
+    margin-top: 16px;
+    padding: 14px 18px;
+    background: rgba(232,160,48,0.07);
+    border-left: 3px solid var(--amber);
+    border-radius: 0 8px 8px 0;
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+  .renew-note strong { color: var(--amber); }
+
+  /* ── Footer ── */
+  footer {
+    margin-top: 40px;
+    padding: 20px 48px;
+    border-top: 1px solid var(--border);
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.7;
+  }
+  footer a { color: var(--blue); text-decoration: none; }
+  footer a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>NDT Certification Map</h1>
+    <p>Paths to certification · ASNT</p>
+  </div>
+  <span class="edition-badge">SNT-TC-1A 2024 Edition</span>
+</header>
+
+<main>
+  <div class="map-wrap">
+    <div class="map">
+
+      <!-- Column headers -->
+      <div class="col-headers">
+        <div class="col-spacer"></div>
+        <div class="col-header blue">
+          SNT-TC-1A
+          <small>Employer-based · flexible</small>
+        </div>
+        <div class="col-header coral">
+          CP-189
+          <small>Employer-based · strict</small>
+        </div>
+        <div class="col-header gray">
+          CP-105
+          <small>Training syllabus</small>
+        </div>
+        <div class="col-header green">
+          ASNT 9712
+          <small>Third-party · portable</small>
+        </div>
+      </div>
+
+      <!-- Level I row -->
+      <div class="level-row lvl1">
+        <div class="level-label">
+          <span class="badge">I</span>
+          <h3>Level I</h3>
+          <p>Technician (supervised)</p>
+        </div>
+
+        <div class="station-cell blue">
+          <div class="dot"></div>
+          <div class="tip">
+            <strong>SNT-TC-1A · Level I</strong>
+            Employer writes their own training requirements. Typical: 4–40 classroom hrs + 70–400 OJT hrs depending on method. Employer certifies you.
+          </div>
+        </div>
+
+        <div class="station-cell coral">
+          <div class="dot"></div>
+          <div class="tip">
+            <strong>CP-189 · Level I</strong>
+            Same levels as SNT-TC-1A but minimums are mandatory — employer cannot reduce them. ASNT Level III must oversee the program.
+          </div>
+        </div>
+
+        <div class="station-cell gray">
+          <div class="dot"></div>
+          <div class="tip">
+            <strong>CP-105 · Level I</strong>
+            Defines the exact topic outlines for Level I training in each method. Used by employers and training providers to build compliant courses.
+          </div>
+        </div>
+
+        <div class="station-cell green">
+          <div class="dot"></div>
+          <div class="tip">
+            <strong>ASNT 9712 · Level I</strong>
+            Third-party certification — ASNT administers exams via Pearson VUE. Includes a hands-on practical. Cert is portable across employers.
+          </div>
+        </div>
+      </div>
+
+      <!-- Level II row -->
+      <div class="level-row lvl2">
+        <div class="level-label">
+          <span class="badge">II</span>
+          <h3>Level II</h3>
+          <p>Senior technician (independent)</p>
+        </div>
+
+        <div class="station-cell blue">
+          <div class="dot"></div>
+          <div class="tip">
+            <strong>SNT-TC-1A · Level II</strong>
+            Additional training + 140–840 OJT hrs. Pass general, specific, and practical exams. Interpret results, make accept/reject calls, write reports.
+          </div>
+        </div>
+
+        <div class="station-cell coral">
+          <div class="dot"></div>
+          <div class="tip">
+            <strong>CP-189 · Level II</strong>
+            Stricter mandatory minimums. Required by nuclear, aerospace, and some ASME / AWS code work. Qualified instructor required for training.
+          </div>
+        </div>
+
+        <div class="station-cell gray">
+          <div class="dot"></div>
+          <div class="tip">
+            <strong>CP-105 · Level II</strong>
+            Specifies the syllabus for Level II in every method. A valid ASNT Level II cert can fulfil the general exam requirement under SNT-TC-1A.
+          </div>
+        </div>
+
+        <div class="station-cell green">
+          <div class="dot"></div>
+          <div class="tip">
+            <strong>ASNT 9712 · Level II</strong>
+            Portable, ISO 9712-aligned. Hands-on practical on top of written exams. Required on many pipeline and international contracts.
+          </div>
+        </div>
+      </div>
+
+      <!-- Level III row -->
+      <div class="level-row lvl3">
+        <div class="level-label">
+          <span class="badge">III</span>
+          <h3>Level III</h3>
+          <p>Manager / expert</p>
+        </div>
+
+        <div class="station-cell blue">
+          <div class="dot"></div>
+          <div class="tip">
+            <strong>SNT-TC-1A · Level III</strong>
+            Years of Level II experience + ASNT Basic exam + Method exam(s). Writes all procedures. Certifies others. Full program authority. Engineering degree can reduce experience requirement.
+          </div>
+        </div>
+
+        <div class="station-cell coral">
+          <div class="dot"></div>
+          <div class="tip">
+            <strong>CP-189 · Level III</strong>
+            Same as SNT-TC-1A Level III but must be an ASNT-certified Level III. Required to review and approve the employer's written practice.
+          </div>
+        </div>
+
+        <div class="station-cell gray">
+          <div class="dot"></div>
+          <div class="tip">
+            <strong>CP-105 · Level III</strong>
+            Provides the advanced topical outlines for Level III training in each NDT method. Used alongside SNT-TC-1A or CP-189 to build Level III qualification programs.
+          </div>
+        </div>
+
+        <div class="station-cell green">
+          <div class="dot"></div>
+          <div class="tip">
+            <strong>ASNT 9712 · Level III</strong>
+            Highest portable certification. Full written + practical exams administered by ASNT. Fulfils the ASNT-certified Level III requirement under CP-189.
+          </div>
+        </div>
+      </div>
+
+    </div><!-- .map -->
+  </div><!-- .map-wrap -->
+
+  <!-- Methods strip -->
+  <div class="methods-section">
+    <p class="methods-label">Method specialisations — certified per method, one at a time</p>
+    <div class="methods-track-wrap">
+      <div class="methods-grid">
+        <div class="method-stop">
+          <div class="m-dot"></div>
+          <span class="m-abbr">VT</span>
+          <span class="m-name">Visual testing</span>
+          <span class="m-hours">16 hrs · 140 OJT</span>
+        </div>
+        <div class="method-stop">
+          <div class="m-dot"></div>
+          <span class="m-abbr">PT</span>
+          <span class="m-name">Penetrant testing</span>
+          <span class="m-hours">8 hrs · 140 OJT</span>
+        </div>
+        <div class="method-stop">
+          <div class="m-dot"></div>
+          <span class="m-abbr">MT</span>
+          <span class="m-name">Mag. particle</span>
+          <span class="m-hours">8 hrs · 210 OJT</span>
+        </div>
+        <div class="method-stop">
+          <div class="m-dot"></div>
+          <span class="m-abbr">UT</span>
+          <span class="m-name">Ultrasonic</span>
+          <span class="m-hours">40 hrs · 630 OJT</span>
+        </div>
+        <div class="method-stop">
+          <div class="m-dot"></div>
+          <span class="m-abbr">RT</span>
+          <span class="m-name">Radiographic</span>
+          <span class="m-hours">40 hrs · 630 OJT</span>
+        </div>
+        <div class="method-stop">
+          <div class="m-dot"></div>
+          <span class="m-abbr">ET</span>
+          <span class="m-name">Electromagnetic</span>
+          <span class="m-hours">40 hrs · 630 OJT</span>
+        </div>
+        <div class="method-stop advanced">
+          <div class="m-dot"></div>
+          <span class="m-abbr">PAUT</span>
+          <span class="m-name">Phased array UT</span>
+          <span class="m-hours">80 hrs · UT II req.</span>
+        </div>
+        <div class="method-stop advanced">
+          <div class="m-dot"></div>
+          <span class="m-abbr">TOFD</span>
+          <span class="m-name">Time of flight diff.</span>
+          <span class="m-hours">40 hrs · UT II req.</span>
+        </div>
+      </div>
+    </div>
+    <p style="font-size:11px;color:var(--muted);margin-top:6px;">Training hours shown are Level II per SNT-TC-1A 2024, Table 6.3.1A. OJT = on-the-job experience. Dashed = advanced technique requiring prior UT Level II.</p>
+  </div>
+
+  <!-- Legend -->
+  <div class="legend">
+    <div class="legend-group">
+      <h4>Standards (vertical tracks)</h4>
+      <div class="legend-item"><div class="leg-line" style="background:var(--blue)"></div>SNT-TC-1A — employer-based, flexible</div>
+      <div class="legend-item"><div class="leg-line" style="background:var(--coral)"></div>CP-189 — employer-based, mandatory minimums</div>
+      <div class="legend-item"><div class="leg-line" style="background:var(--gray)"></div>CP-105 — training syllabus supplement</div>
+      <div class="legend-item"><div class="leg-line" style="background:var(--green)"></div>ASNT 9712 — third-party, portable</div>
+    </div>
+    <div class="legend-group">
+      <h4>Levels (horizontal tracks)</h4>
+      <div class="legend-item"><div class="leg-line" style="background:var(--purple)"></div>Level I — supervised technician</div>
+      <div class="legend-item"><div class="leg-line" style="background:var(--teal)"></div>Level II — independent technician</div>
+      <div class="legend-item"><div class="leg-line" style="background:var(--amber)"></div>Level III — manager / expert</div>
+    </div>
+    <div class="legend-group">
+      <h4>Stations</h4>
+      <div class="legend-item"><div class="leg-dot" style="border-color:var(--blue)"></div>Certification level achieved under that standard</div>
+      <div class="legend-item" style="font-size:11px;color:var(--muted);">Hover any station for details</div>
+    </div>
+  </div>
+
+  <div class="renew-note">
+    <strong>Recertification:</strong> Every <strong>5 years</strong> — documented satisfactory performance or re-exam. Every <strong>10 years</strong> — full re-examination required regardless of performance record. Vision exam renewed annually (near-acuity) and every 5 years (colour contrast). Source: SNT-TC-1A 2024, Sections 8.2 and 12.0.
+  </div>
+
+</main>
+
+<footer>
+  Sources: ASNT SNT-TC-1A 2024 (asnt.org/standards-publications/standards) ·
+  <a href="https://www.asnt.org/certification" target="_blank">ASNT Certification Programs</a> ·
+  Training hour figures from Table 6.3.1A, SNT-TC-1A 2024 Edition. Hours vary by employer written practice.
+</footer>
+
+</body>
+</html>
